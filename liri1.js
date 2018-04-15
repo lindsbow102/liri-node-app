@@ -1,42 +1,44 @@
-// Include the request npm package (Don't forget to run "npm install request" in this folder first!)
-var request = require("request");
-
-// Store all of the arguments in an array
+require("dotenv").config();
+const keys = require('./keys.js');
+var Spotify = require('node-spotify-api');
+var spotify = new Spotify(keys.spotify);
 var nodeArgs = process.argv;
 
-// Create an empty variable for holding the movie name
-var movieName = "";
+var spotifyThisSong = function () {
 
-// Loop through all the words in the node argument
-// And do a little for-loop magic to handle the inclusion of "+"s
-for (var i = 2; i < nodeArgs.length; i++) {
+    var songName = "";
 
-  if (i > 2 && i < nodeArgs.length) {
+    if (songName === undefined){
+        songName = "the sign ace of base";
+    }
 
-    movieName = movieName + "+" + nodeArgs[i];
-
-  }
-
-  else {
-
-    movieName += nodeArgs[i];
-
-  }
+    for (var i = 3; i < nodeArgs.length; i++) {
+        if (i > 3 && i < nodeArgs.length) {
+            songName = songName + "+" + nodeArgs[i];
+        } else {
+            songName += nodeArgs[i];
+        }
+    }
+    spotify.search({ type: 'track', query: songName }, function (err, data) {
+        if (err) {
+            return console.log('Error occurred: ' + err);
+        }
+        for (var i = 0; i < data.tracks.items[0].artists.length; i++) {
+            if (i === 0) {
+                console.log("Artist(s): " + data.tracks.items[0].artists[i].name);
+            } else {
+                console.log("  " + data.tracks.items[0].artists[i].name);
+            }
+        }
+        console.log("Song: " + data.tracks.items[0].name);
+        console.log("Preview Link: " + data.tracks.items[0].preview_url);
+        console.log("Album: " + data.tracks.items[0].album.name);
+        //console.log(JSON.stringify(data, null, 2)); 
+    })
 }
 
-// Then run a request to the OMDB API with the movie specified
-var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
-
-// This line is just to help us debug against the actual URL.
-console.log(queryUrl);
-
-request(queryUrl, function(error, response, body) {
-
-  // If the request is successful
-  if (!error && response.statusCode === 200) {
-
-    // Parse the body of the site and recover just the imdbRating
-    // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-    console.log("Release Year: " + JSON.parse(body).Year);
-  }
-});
+switch (nodeArgs[2]) {
+    case "spotify-this-song":
+        spotifyThisSong();
+        break;
+}
