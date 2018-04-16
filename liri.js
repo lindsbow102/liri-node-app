@@ -15,21 +15,21 @@ var spotify = new Spotify(keys.spotify);
 var nodeArgs = process.argv;
 
 //Getting terminal to display last 20 tweets
-var myTweets = function() {
-	
-	client.get('search/tweets', params, function(error, tweets, response) {
-	  if (!error) {
-        //testing to see if this even works
-        console.log(JSON.stringify(response));
-	  	// Loops through tweets and prints out tweet text and creation date.
-	  	for (var i = 0; i < tweets.statuses.length; i++) {
-	  		var tweetText = tweets.statuses[i].text;
-	  		console.log("Tweet Text: " + tweetText);
-	  		var tweetCreationDate = tweets.statuses[i].created_at;
-	  		console.log("Tweet Creation Date: " + tweetCreationDate);
-	  	}
-	  } 
-	})
+var myTweets = function () {
+
+    client.get('search/tweets', params, function (error, tweets, response) {
+        if (!error) {
+            //testing to see if this even works
+            console.log(JSON.stringify(response));
+            // Loops through tweets and prints out tweet text and creation date.
+            for (var i = 0; i < tweets.statuses.length; i++) {
+                var tweetText = tweets.statuses[i].text;
+                console.log("Tweet Text: " + tweetText);
+                var tweetCreationDate = tweets.statuses[i].created_at;
+                console.log("Tweet Creation Date: " + tweetCreationDate);
+            }
+        }
+    })
 }
 
 var params = { screen_name: 'nodejs' };
@@ -108,27 +108,20 @@ var spotifyThisSong = function () {
     })
 }
 
-function doWhatItSays() {
+var doWhatItSays = function () {
 
     fs.readFile("random.txt", "utf8", function (err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-
-            // Creates array with data.
-            var randomArray = data.split(",");
-
-            // Sets action to first item in array.
-            action = randomArray[0];
-
-            // Sets optional third argument to second item in array.
-            argument = randomArray[1];
-
-            // Calls main controller to do something based on action and argument.
-            spotifyThisSong(action, argument);
+        console.log(data);
+        var dataArr = data.split(',');
+        if (dataArr[0] === 'spotify-this-song') {
+            spotifyThisSong(dataArr[1]);
         }
-    });
-}
+        if (dataArr[0] === 'movie-this') {
+            movieThis(dataArr[1]);
+        }
+    })
+};
+
 
 switch (nodeArgs[2]) {
     case "my-tweets":
@@ -152,6 +145,4 @@ switch (nodeArgs[2]) {
         break;
 
 }
-
-
 
