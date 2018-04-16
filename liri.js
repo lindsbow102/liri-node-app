@@ -1,8 +1,11 @@
+//so we can read the keys and tokens for twitter and spotify
 require("dotenv").config();
 
+//getting keys.js, which will call on our secret keys/tokens
 const keys = require('./keys');
 var fs = require('fs');
 
+//setting up for twitter
 var Twitter = require('twitter');
 var client = new Twitter(keys.twitter);
 var params = {
@@ -10,12 +13,59 @@ var params = {
     count: 20
 };
 
+//setting up for spotify
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
-var nodeArgs = process.argv;
+
+//simplifying process.argv a bit
+const arg1 = process.argv[2];
+const arg2 = process.argv[3];
+
+//this will help to read multiple word commands in arg2
+var x = "";
+for (var i = 3; i < process.argv.length; i++) {
+    if (i > 3 && i < process.argv.length) {
+        x = x + "+" + process.argv[i];
+    } else {
+        x = x + process.argv[i];
+    }
+}
+
+// depending on what arg1 says, terminal will run different commands
+switch (arg1) {
+    case 'my-tweets':
+        myTweets();
+        break;
+    case 'spotify-this-song':
+        if (x) {
+            spotifyThisSong(x);
+        } else {
+            spotifyThisSong('The Sign ace of base');
+        }
+        break;
+    case 'movie-this':
+        if (x) {
+            movieThis(x);
+        } else {
+            movieThis('Mr. Nobody');
+        }
+        break;
+    case 'do-what-it-says':
+        doWhatItSays();
+        break;
+    case '':
+        if (arg2 === 'undefined') {
+            console.log(`You requested ${arg2}`);
+        }
+        else {
+            console.log('Defaulting to The Sign');
+        }
+    default:
+        console.log("We don't know what you're taking about.")
+}
 
 //Getting terminal to display last 20 tweets
-var myTweets = function () {
+function myTweets () {
 
     client.get('search/tweets', params, function (error, tweets, response) {
         if (!error) {
@@ -32,34 +82,15 @@ var myTweets = function () {
     })
 }
 
-var params = { screen_name: 'nodejs' };
-client.get('statuses/user_timeline', params, function (error, tweets, response) {
-    if (!error) {
-        console.log(tweets);
-    }
-});
-
-var movieThis = function (movieName) {
+//let's get info for our favorite movie
+function movieThis(movieName) {
     // Load request npm module
     var request = require("request");
-    // Create an empty variable for holding the movie name
-    var movieName = "";
-    // Loop through all the words in the node argument
-    // And do a little for-loop magic to handle the inclusion of "+"s
-    for (var i = 3; i < nodeArgs.length; i++) {
-        if (i > 3 && i < nodeArgs.length) {
-            movieName = movieName + "+" + nodeArgs[i];
-        } else {
-            movieName += nodeArgs[i];
-        }
-    }
     // Then run a request to the OMDB API with the movie specified
     var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
     // This line is just to help us debug against the actual URL.
     console.log(queryUrl);
-    if (movieName === undefined) {
-        movieName = "mr nobody";
-    }
+
     request(queryUrl, function (error, response, body) {
         // If the request is successful
         if (!error && response.statusCode === 200) {
@@ -75,21 +106,9 @@ var movieThis = function (movieName) {
     });
 }
 
-var spotifyThisSong = function () {
-    //create empty variable to hold song name
-    var songName = "";
-
-    if (songName === undefined) {
-        songName = "the sign ace of base";
-    }
-
-    for (var i = 3; i < nodeArgs.length; i++) {
-        if (i > 3 && i < nodeArgs.length) {
-            songName = songName + "+" + nodeArgs[i];
-        } else {
-            songName += nodeArgs[i];
-        }
-    }
+//let's get info for our favorite song
+function spotifyThisSong (songName) {
+    
     spotify.search({ type: 'track', query: songName }, function (err, data) {
         if (err) {
             return console.log('Error occurred: ' + err);
@@ -104,45 +123,17 @@ var spotifyThisSong = function () {
         console.log("* Song: " + data.tracks.items[0].name);
         console.log("* Preview Link: " + data.tracks.items[0].preview_url);
         console.log("* Album: " + data.tracks.items[0].album.name);
-        //console.log(JSON.stringify(data, null, 2)); 
     })
 }
 
-var doWhatItSays = function () {
+//run this function to grab the text from random.txt, and in turn run the //function that is called in the text
+function doWhatItSays() {
 
     fs.readFile("random.txt", "utf8", function (err, data) {
         console.log(data);
         var dataArr = data.split(',');
-        if (dataArr[0] === 'spotify-this-song') {
-            spotifyThisSong(dataArr[1]);
-        }
-        if (dataArr[0] === 'movie-this') {
-            movieThis(dataArr[1]);
-        }
+        
+           spotifyThisSong(dataArr[1]);
     })
-};
-
-
-switch (nodeArgs[2]) {
-    case "my-tweets":
-        myTweets();
-        break;
-
-    case "movie-this":
-        movieThis();
-        break;
-
-    case "spotify-this-song":
-        spotifyThisSong();
-        break;
-
-    case "do-what-it-says":
-        doWhatItSays();
-        break;
-
-    default:
-        console.log("{Please enter a command: my-tweets, spotify-this-song, movie-this, do-what-it-says}");
-        break;
-
 }
 
