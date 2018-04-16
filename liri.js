@@ -32,6 +32,13 @@ var myTweets = function() {
 	})
 }
 
+var params = { screen_name: 'nodejs' };
+client.get('statuses/user_timeline', params, function (error, tweets, response) {
+    if (!error) {
+        console.log(tweets);
+    }
+});
+
 var movieThis = function (movieName) {
     // Load request npm module
     var request = require("request");
@@ -103,24 +110,24 @@ var spotifyThisSong = function () {
 
 function doWhatItSays() {
 
-	fs.readFile("random.txt", "utf8", function(err, data) {
-		if (err) {
-			logOutput.error(err);
-		} else {
+    fs.readFile("random.txt", "utf8", function (err, data) {
+        if (err) {
+            console.log(err);
+        } else {
 
-			// Creates array with data.
-			var randomArray = data.split(",");
+            // Creates array with data.
+            var randomArray = data.split(",");
 
-			// Sets action to first item in array.
-			action = randomArray[0];
+            // Sets action to first item in array.
+            action = randomArray[0];
 
-			// Sets optional third argument to second item in array.
-			argument = randomArray[1];
+            // Sets optional third argument to second item in array.
+            argument = randomArray[1];
 
-			// Calls main controller to do something based on action and argument.
-			spotifyThisSong(action, argument);
-		}
-	});
+            // Calls main controller to do something based on action and argument.
+            spotifyThisSong(action, argument);
+        }
+    });
 }
 
 switch (nodeArgs[2]) {
@@ -141,8 +148,8 @@ switch (nodeArgs[2]) {
         break;
 
     default:
-     console.log("{Please enter a command: my-tweets, spotify-this-song, movie-this, do-what-it-says}");
-     break;
+        console.log("{Please enter a command: my-tweets, spotify-this-song, movie-this, do-what-it-says}");
+        break;
 
 }
 
