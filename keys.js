@@ -1,4 +1,3 @@
-console.log('this is loaded');
 
 exports.Twitter = {
   consumer_key: process.env.TWITTER_CONSUMER_KEY,

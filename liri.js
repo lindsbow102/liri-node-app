@@ -88,9 +88,7 @@ function movieThis(movieName) {
     var request = require("request");
     // Then run a request to the OMDB API with the movie specified
     var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
-    // This line is just to help us debug against the actual URL.
-    console.log(queryUrl);
-
+    
     request(queryUrl, function (error, response, body) {
         // If the request is successful
         if (!error && response.statusCode === 200) {
